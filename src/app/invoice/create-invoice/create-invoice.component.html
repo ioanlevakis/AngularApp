@@ -9,19 +9,23 @@
         </button>
     </div>
     <div class="modal-body">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit distinctio obcaecati vitae, aliquid quas ea
-        vero sit eos debitis, expedita nisi nostrum fuga reprehenderit ipsam consequuntur tenetur ratione quia sapiente.
-        At omnis temporibus officiis molestias nostrum debitis quis repellendus autem quam voluptas officia pariatur
-        exercitationem vel fugiat, illo iure asperiores. Sint ipsam neque eveniet, odit provident sed temporibus
-        inventore itaque.
-        Sint eligendi aliquid libero fuga quidem corrupti, facere atque dicta inventore itaque numquam perspiciatis quis
-        distinctio necessitatibus nihil commodi quisquam officiis illo asperiores consectetur accusantium. Non commodi
-        ex repellendus expedita.
-        Debitis laudantium et eaque perspiciatis autem architecto at beatae praesentium dignissimos hic doloribus
-        aliquam animi, nam totam amet a placeat earum sequi? Recusandae obcaecati aspernatur modi quam expedita natus!
-        Fugit.
-        Facilis, minima! Dicta quam expedita voluptas perferendis nobis quibusdam excepturi atque blanditiis veritatis
-        facilis dolore consequatur, commodi delectus enim odio minus voluptatibus aperiam ipsum odit. Aperiam harum
-        exercitationem quisquam officiis?
+        <form #invoiceForm="ngForm" (ngSubmit)="createInvoice()">
+            <div class="card mt-2">
+                <div class="card-header bg-primary">
+                    <h3 class="card-title text-white">Invoice Form</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="invoiceCode" class="form-label">Invoice Code</label>
+                        <input type="text" [(ngModel)]="invoice.code" class="form-control" id="invoiceCode"
+                            name="invoiceCode" required #invoiceCodeControl="ngModel" />
+                        <div class="invalid-feedback">Please provide a valid Invoice Code</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" [disabled]="invoiceForm.invalid">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </ng-template>
