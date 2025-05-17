@@ -1,8 +1,10 @@
+import { Currency } from "./currency.modal";
 import { Transaction } from "./transaction.model";
 
 export interface IAccount {
     id: string;
     code: string;
+    currency: Currency;
     name: string;
     description: string;
     balance: number;
@@ -13,6 +15,7 @@ export interface IAccount {
 export class Account implements IAccount {
     id!: string;
     code!: string;
+    currency!: Currency;
     name!: string;
     description!: string;
     balance!: number;

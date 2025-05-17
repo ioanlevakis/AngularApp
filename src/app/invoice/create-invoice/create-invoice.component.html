@@ -1,31 +1,84 @@
-<button type="button" class="btn btn-primary" (click)="openModal(template)">Create Invoice</button>
-<br>
+<button type="button" class="btn btn-primary" (click)="showParentModal()">Create Invoice</button>
 
-<ng-template #template>
-    <div class="modal-header">
-        <h4 class="modal-title pull-left">Create Invoice</h4>
-        <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
-            <span aria-hidden="true" class="visually-hidden">&times;</span>
-        </button>
-    </div>
-    <div class="modal-body">
-        <form #invoiceForm="ngForm" (ngSubmit)="createInvoice()">
-            <div class="card mt-2">
-                <div class="card-header bg-primary">
-                    <h3 class="card-title text-white">Invoice Form</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="invoiceCode" class="form-label">Invoice Code</label>
-                        <input type="text" [(ngModel)]="invoice.code" class="form-control" id="invoiceCode"
-                            name="invoiceCode" required #invoiceCodeControl="ngModel" />
-                        <div class="invalid-feedback">Please provide a valid Invoice Code</div>
-                    </div>
-                    <button type="submit" class="btn btn-primary" [disabled]="invoiceForm.invalid">
-                        Save
-                    </button>
-                </div>
+<div bsModal #parentModal="bs-modal" [config]="{ignoreBackdropClick: true, keyboard: false}" class="modal fade"
+    tabindex="-1" role="dialog" aria-labelledby="dialog-child-name">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title pull-left">Create Invoice</h4>
+                <button type="button" class="btn-close close pull-right" aria-label="Close"
+                    (click)="hideParentModal(invoiceForm)">
+                    <span aria-hidden="true" class="visually-hidden">&times;</span>
+                </button>
             </div>
-        </form>
+            <div class="modal-body">
+                <form #invoiceForm="ngForm" (ngSubmit)="createInvoice()">
+                    <div class="card mt-2">
+                        <div class="card-header bg-primary">
+                            <h3 class="card-title text-white">Invoice Form</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="creditAccount" class="form-label">Credit Account</label>
+                                <input placeholder="Select Credit Account" readonly style="cursor: pointer;"
+                                    (click)="showChildModal()" type="text" [(ngModel)]="invoice.creditAccount.name"
+                                    class="form-control" id="creditAccount" name="creditAccount" required
+                                    #creditAccountControl="ngModel" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="invoiceCode" class="form-label">Invoice Code</label>
+                                <input type="text" [(ngModel)]="invoice.code" class="form-control" id="invoiceCode"
+                                    name="invoiceCode" required #invoiceCodeControl="ngModel" />
+                                <div class="invalid-feedback">Please provide a valid Invoice Code</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" [disabled]="invoiceForm.invalid">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-</ng-template>
+</div>
+
+
+<div bsModal #childModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-child-name">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="dialog-child-name" class="modal-title pull-left">Credit Accounts</h4>
+                <button type="button" class="close pull-right btn-close" aria-label="Close" (click)="hideChildModal()">
+                    <span aria-hidden="true" class="visually-hidden">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="text-center">Account Code</th>
+                            <th>Name</th>
+                            <th class="text-center">Balance</th>
+                            <th class="text-center">Currency</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        <!-- <tr *ngFor="let item of items" (click)="onSelect(item)" style="cursor: pointer;"> -->
+                        @for(account of creditAccounts; track account.id; let i = $index){
+                        <tr (click)="onTableSelect(account)" style="cursor: pointer;"
+                            class="bg-light shadow-sm rounded">
+                            <td>{{ i + 1 }}</td>
+                            <td class="text-center">{{ account.code }}</td>
+                            <td>{{ account.name }}</td>
+                            <td class="text-center">{{ account.balance }}</td>
+                            <td class="text-center">{{ account.currency.symbol }}</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>

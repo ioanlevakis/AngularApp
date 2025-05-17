@@ -1,54 +1,46 @@
-import { Component, TemplateRef } from '@angular/core';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { FormsModule, } from '@angular/forms';
+import { Component, ViewChild } from '@angular/core';
+import { BsModalRef, BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
+import { FormsModule, NgForm, } from '@angular/forms';
+import { ModalModule } from 'ngx-bootstrap/modal';
 import { Invoice } from '../../models/invoice.model';
 import { Transaction } from '../../models/transaction.model';
+import { Currency } from '../../models/currency.modal';
+import { Account } from '../../models/account.model';
 
 
 @Component({
   selector: 'app-create-invoice',
   providers: [BsModalService],
-  imports: [FormsModule],
+  imports: [FormsModule, ModalModule],
   templateUrl: './create-invoice.component.html',
   styleUrl: './create-invoice.component.css'
 })
 export class CreateInvoiceComponent {
-  modalRef?: BsModalRef;
 
-  // invoice: Invoice={
-  //   code: "",
-  //   creditAccount: { 
-  //     id: string;
-  //       code: string;
-  //       name: string;
-  //       description: string;
-  //       balance: number;
-  //       type: string;
-  //       transactions: Transaction[];},
-  //   currency: {code: string;
-  //     name: string;
-  //     symbol: string;},
-  //   dateInserted: new Date(),
-  //   debitAccount: { id: string;
-  //       code: string;
-  //       name: string;
-  //       description: string;
-  //       balance: number;
-  //       type: string;
-  //       transactions: Transaction[];},
-  //   dueDate: new Date(),
-  //   exchangeRate: 0,
-  //   id: "",
-  //   issueDate: new Date(),
-  //   items: [{amount: number;
-  //     description: string;
-  //     quantity: number;
-  //     type: string;
-  //     unitPrice: number;}],
-  //   remarks: "",
-  //   status: "",
-  //   totalAmount: 0
-  // }
+  parentModalRef?: BsModalRef;
+
+  creditAccounts: Account[] = [
+    {
+      id: "1",
+      code: "acc-001",
+      name: "Sales Revenue",
+      description: "Income from services rendered",
+      balance: 5000,
+      type: "Income",
+      transactions: [],
+      currency: { code: "USD", name: "US Dollar", symbol: "$" }
+    },
+    {
+      id: "2",
+      code: "acc-002",
+      name: "Marketing Revenue",
+      description: "Income from services rendered",
+      balance: 10000,
+      type: "Income",
+      transactions: [],
+      currency: { code: "EUR", name: "Euro", symbol: "€" }
+    }
+  ];
 
 
   invoice: Invoice = {
@@ -57,7 +49,7 @@ export class CreateInvoiceComponent {
     dateInserted: new Date(),
     dueDate: new Date("2025-05-31"),
     exchangeRate: 0.92,
-    id: "inv-001",
+    id: "900",
     issueDate: new Date(),
     items: [
       {
@@ -80,24 +72,17 @@ export class CreateInvoiceComponent {
     totalAmount: 1800,
 
     debitAccount: {
-      id: "acc-002",
-      code: "1000",
+      id: "3",
+      code: "acc-002",
       name: "Cash",
       description: "Cash account",
       balance: 3000,
       type: "Asset",
-      transactions: []
+      transactions: [],
+      currency: { code: "EUR", name: "Euro", symbol: "€" }
     },
 
-    creditAccount: {
-      id: "acc-001",
-      code: "4000",
-      name: "Sales Revenue",
-      description: "Income from services rendered",
-      balance: 5000,
-      type: "Income",
-      transactions: []
-    }
+    creditAccount: {} as Account
   };
 
   transaction: Transaction = {
@@ -119,10 +104,38 @@ export class CreateInvoiceComponent {
     this.invoice.creditAccount.transactions = [this.transaction];
   }
 
-  openModal(template: TemplateRef<void>) {
-    this.modalRef = this.modalService.show(template);
+  onTableSelect(item: any) {
+    this.invoice.creditAccount = item;
+    this.hideChildModal();
   }
+
+
   createInvoice() {
     throw new Error('Method not implemented.');
+  }
+
+
+  @ViewChild('parentModal', { static: false }) parentModal?: ModalDirective;
+  @ViewChild('childModal', { static: false }) childModal?: ModalDirective;
+
+  showParentModal(): void {
+    this.parentModal?.show();
+  }
+  showChildModal(): void {
+    this.childModal?.show();
+  }
+
+  hideParentModal(invoiceForm: NgForm): void {
+    if (invoiceForm && invoiceForm.dirty) {
+      if (confirm('You have unsaved changes. Close anyway?')) {
+        this.parentModal?.hide();
+        invoiceForm.reset();
+      }
+    } else {
+      this.parentModal?.hide();
+    }
+  }
+  hideChildModal(): void {
+    this.childModal?.hide();
   }
 }
