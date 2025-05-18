@@ -1,23 +1,23 @@
-import { Component, ViewChild } from '@angular/core';
-import { BsModalRef, BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
-import { FormsModule, NgForm, } from '@angular/forms';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
+import { FormsModule, NgForm, NgModel, } from '@angular/forms';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { Invoice } from '../../models/invoice.model';
 import { Transaction } from '../../models/transaction.model';
-import { Currency } from '../../models/currency.modal';
 import { Account } from '../../models/account.model';
+import { DatePipe } from '@angular/common';
 
 
 @Component({
   selector: 'app-create-invoice',
   providers: [BsModalService],
-  imports: [FormsModule, ModalModule],
+  imports: [FormsModule, ModalModule, DatePipe],
   templateUrl: './create-invoice.component.html',
   styleUrl: './create-invoice.component.css'
 })
 export class CreateInvoiceComponent {
 
-  parentModalRef?: BsModalRef;
+  accountItems: Account[] = [];
 
   creditAccounts: Account[] = [
     {
@@ -26,7 +26,7 @@ export class CreateInvoiceComponent {
       name: "Sales Revenue",
       description: "Income from services rendered",
       balance: 5000,
-      type: "Income",
+      type: "Credit",
       transactions: [],
       currency: { code: "USD", name: "US Dollar", symbol: "$" }
     },
@@ -36,17 +36,38 @@ export class CreateInvoiceComponent {
       name: "Marketing Revenue",
       description: "Income from services rendered",
       balance: 10000,
-      type: "Income",
+      type: "Credit",
       transactions: [],
       currency: { code: "EUR", name: "Euro", symbol: "€" }
     }
   ];
-
+  debitAccounts: Account[] = [
+    {
+      id: "3",
+      code: "acc-003",
+      name: "Cash",
+      description: "Cash account",
+      balance: 2500,
+      type: "Debit",
+      transactions: [],
+      currency: { code: "EUR", name: "Euro", symbol: "€" }
+    },
+    {
+      id: "4",
+      code: "acc-004",
+      name: "eCash",
+      description: "Bank of Greece account",
+      balance: 600,
+      type: "Debit",
+      transactions: [],
+      currency: { code: "EUR", name: "Euro", symbol: "€" }
+    }
+  ]
 
   invoice: Invoice = {
     code: "INV-2025-0001",
     currency: { code: "USD", name: "US Dollar", symbol: "$" },
-    dateInserted: new Date(),
+    dateInserted: null,
     dueDate: new Date("2025-05-31"),
     exchangeRate: 0.92,
     id: "900",
@@ -71,16 +92,7 @@ export class CreateInvoiceComponent {
     status: "Pending",
     totalAmount: 1800,
 
-    debitAccount: {
-      id: "3",
-      code: "acc-002",
-      name: "Cash",
-      description: "Cash account",
-      balance: 3000,
-      type: "Asset",
-      transactions: [],
-      currency: { code: "EUR", name: "Euro", symbol: "€" }
-    },
+    debitAccount: {} as Account,
 
     creditAccount: {} as Account
   };
@@ -99,13 +111,23 @@ export class CreateInvoiceComponent {
     status: "Posted"
   };
 
-  constructor(private modalService: BsModalService) {
+  constructor(private modalService: BsModalService, private cdr: ChangeDetectorRef) {
     this.invoice.debitAccount.transactions = [this.transaction];
     this.invoice.creditAccount.transactions = [this.transaction];
   }
 
+  @ViewChild('creditAccountControl') creditAccountControl!: NgModel;
+  @ViewChild('debitAccountControl') debitAccountControl!: NgModel;
+
+
   onTableSelect(item: any) {
-    this.invoice.creditAccount = item;
+    if (item.type === "Debit") {
+      this.invoice.debitAccount = item;
+      this.debitAccountControl.control.markAsDirty();
+    } else {
+      this.invoice.creditAccount = item;
+      this.creditAccountControl.control.markAsDirty();
+    }
     this.hideChildModal();
   }
 
@@ -119,10 +141,22 @@ export class CreateInvoiceComponent {
   @ViewChild('childModal', { static: false }) childModal?: ModalDirective;
 
   showParentModal(): void {
+    this.invoice.dateInserted = new Date();
     this.parentModal?.show();
   }
   showChildModal(): void {
     this.childModal?.show();
+  }
+
+  showCreditAccountsModal() {
+    this.accountItems = [...this.creditAccounts];
+    this.cdr.detectChanges(); // Force UI update
+    this.showChildModal();
+  }
+  showDebitAccountsModal() {
+    this.accountItems = [...this.debitAccounts];
+    this.cdr.detectChanges(); // Force UI update
+    this.showChildModal();
   }
 
   hideParentModal(invoiceForm: NgForm): void {

@@ -6,7 +6,7 @@ export interface IInvoice {
     code: string;
     creditAccount: Account;
     currency: Currency;
-    dateInserted: Date;
+    dateInserted: Date | null;
     debitAccount: Account;
     dueDate: Date;
     exchangeRate: number;
@@ -37,7 +37,7 @@ export class Invoice implements IInvoice {
         public code: string,
         public creditAccount: Account,
         public currency: Currency,
-        public dateInserted: Date,
+        public dateInserted: Date | null,
         public debitAccount: Account,
         public dueDate: Date,
         public exchangeRate: number,

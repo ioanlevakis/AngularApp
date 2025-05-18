@@ -17,13 +17,27 @@
                         <div class="card-header bg-primary">
                             <h3 class="card-title text-white">Invoice Form</h3>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body position-relative">
+
+                            <div class="mb-4">
+                                <span
+                                    class="badge bg-success rounded-pill position-absolute top-0 end-0 mt-2 me-2 px-3 py-2 fs-6">
+                                    {{invoice.dateInserted | date:'cccc, dd LLLL YYYY, HH:mm a' }}
+                                </span>
+                            </div>
                             <div class="mb-3">
                                 <label for="creditAccount" class="form-label">Credit Account</label>
                                 <input placeholder="Select Credit Account" readonly style="cursor: pointer;"
-                                    (click)="showChildModal()" type="text" [(ngModel)]="invoice.creditAccount.name"
-                                    class="form-control" id="creditAccount" name="creditAccount" required
-                                    #creditAccountControl="ngModel" />
+                                    (click)="showCreditAccountsModal()" type="text"
+                                    [(ngModel)]="invoice.creditAccount.name" class="form-control" id="creditAccount"
+                                    name="creditAccount" required #creditAccountControl="ngModel" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="debitAccount" class="form-label">Dedit Account</label>
+                                <input placeholder="Select Dedit Account" readonly style="cursor: pointer;"
+                                    (click)="showDebitAccountsModal()" type="text"
+                                    [(ngModel)]="invoice.debitAccount.name" class="form-control" id="debitAccount"
+                                    name="debitAccount" required #debitAccountControl="ngModel" />
                             </div>
                             <div class="mb-3">
                                 <label for="invoiceCode" class="form-label">Invoice Code</label>
@@ -65,7 +79,7 @@
                     </thead>
                     <tbody class="table-group-divider">
                         <!-- <tr *ngFor="let item of items" (click)="onSelect(item)" style="cursor: pointer;"> -->
-                        @for(account of creditAccounts; track account.id; let i = $index){
+                        @for(account of accountItems; track account.id; let i = $index){
                         <tr (click)="onTableSelect(account)" style="cursor: pointer;"
                             class="bg-light shadow-sm rounded">
                             <td>{{ i + 1 }}</td>

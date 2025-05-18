@@ -19,6 +19,6 @@ export class Account implements IAccount {
     name!: string;
     description!: string;
     balance!: number;
-    type!: "Asset" | "Liability" | "Income" | "Expense" | "Equity";
+    type!: "Asset" | "Liability" | "Income" | "Expense" | "Equity" | "Debit" | "Credit";
     transactions?: Transaction[];
 }
