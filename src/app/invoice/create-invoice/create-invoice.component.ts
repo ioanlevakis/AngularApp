@@ -5,19 +5,105 @@ import { ModalModule } from 'ngx-bootstrap/modal';
 import { Invoice } from '../../models/invoice.model';
 import { Transaction } from '../../models/transaction.model';
 import { Account } from '../../models/account.model';
-import { DatePipe } from '@angular/common';
+import { DatePipe, JsonPipe } from '@angular/common';
 
 
 @Component({
   selector: 'app-create-invoice',
   providers: [BsModalService],
-  imports: [FormsModule, ModalModule, DatePipe],
+  imports: [FormsModule, ModalModule, DatePipe, JsonPipe],
   templateUrl: './create-invoice.component.html',
   styleUrl: './create-invoice.component.css'
 })
 export class CreateInvoiceComponent {
+  selectType(transactionType: string) {
+    if (transactionType === "Credit") {
+      this.isCredit = true;
+      this.isDebit = false;
+      this.debitAccountControl?.reset();
+      this.invoice.debitAccount = {} as Account;
+    }
+    else {
+      this.isCredit = false;
+      this.isDebit = true;
+      this.creditAccountControl?.reset();
+      this.invoice.creditAccount = {} as Account;
+    }
+
+    this.exchangeRateControl?.reset();
+    this.transactionTouched = true;
+  }
 
   accountItems: Account[] = [];
+
+  isCredit!: boolean;
+  isDebit!: boolean;
+
+  transactionTouched!: boolean;
+
+  constructor(private cdr: ChangeDetectorRef) {
+    this.invoice.debitAccount.transactions = [this.transaction];
+    this.invoice.creditAccount.transactions = [this.transaction];
+  }
+
+  @ViewChild('creditAccountControl') creditAccountControl!: NgModel;
+  @ViewChild('debitAccountControl') debitAccountControl!: NgModel;
+  @ViewChild('exchangeRateControl') exchangeRateControl!: NgModel;
+
+
+  onTableSelect(item: any) {
+    if (item.type === "Debit") {
+      this.invoice.debitAccount = item;
+      this.debitAccountControl.control.markAsDirty();
+    } else {
+      this.invoice.creditAccount = item;
+      this.creditAccountControl.control.markAsDirty();
+    }
+    this.hideChildModal();
+  }
+
+
+  createInvoice() {
+    throw new Error('Method not implemented.');
+  }
+
+
+  @ViewChild('parentModal', { static: false }) parentModal?: ModalDirective;
+  @ViewChild('childModal', { static: false }) childModal?: ModalDirective;
+
+  showParentModal(): void {
+    this.invoice.dateInserted = new Date();
+    this.parentModal?.show();
+  }
+  showChildModal(): void {
+    this.childModal?.show();
+  }
+
+  showCreditAccountsModal() {
+    this.accountItems = [...this.creditAccounts];
+    this.cdr.detectChanges(); // Force UI update
+    this.showChildModal();
+  }
+  showDebitAccountsModal() {
+    this.accountItems = [...this.debitAccounts];
+    this.cdr.detectChanges(); // Force UI update
+    this.showChildModal();
+  }
+
+  hideParentModal(invoiceForm: NgForm): void {
+    if (invoiceForm && invoiceForm.dirty) {
+      if (confirm('You have unsaved changes. Close anyway?')) {
+        this.parentModal?.hide();
+        invoiceForm.reset();
+        this.transactionTouched = false;
+      }
+    } else {
+      this.parentModal?.hide();
+    }
+  }
+  hideChildModal(): void {
+    this.childModal?.hide();
+  }
 
   creditAccounts: Account[] = [
     {
@@ -110,66 +196,4 @@ export class CreateInvoiceComponent {
     linkedInvoiceId: this.invoice.id,
     status: "Posted"
   };
-
-  constructor(private modalService: BsModalService, private cdr: ChangeDetectorRef) {
-    this.invoice.debitAccount.transactions = [this.transaction];
-    this.invoice.creditAccount.transactions = [this.transaction];
-  }
-
-  @ViewChild('creditAccountControl') creditAccountControl!: NgModel;
-  @ViewChild('debitAccountControl') debitAccountControl!: NgModel;
-
-
-  onTableSelect(item: any) {
-    if (item.type === "Debit") {
-      this.invoice.debitAccount = item;
-      this.debitAccountControl.control.markAsDirty();
-    } else {
-      this.invoice.creditAccount = item;
-      this.creditAccountControl.control.markAsDirty();
-    }
-    this.hideChildModal();
-  }
-
-
-  createInvoice() {
-    throw new Error('Method not implemented.');
-  }
-
-
-  @ViewChild('parentModal', { static: false }) parentModal?: ModalDirective;
-  @ViewChild('childModal', { static: false }) childModal?: ModalDirective;
-
-  showParentModal(): void {
-    this.invoice.dateInserted = new Date();
-    this.parentModal?.show();
-  }
-  showChildModal(): void {
-    this.childModal?.show();
-  }
-
-  showCreditAccountsModal() {
-    this.accountItems = [...this.creditAccounts];
-    this.cdr.detectChanges(); // Force UI update
-    this.showChildModal();
-  }
-  showDebitAccountsModal() {
-    this.accountItems = [...this.debitAccounts];
-    this.cdr.detectChanges(); // Force UI update
-    this.showChildModal();
-  }
-
-  hideParentModal(invoiceForm: NgForm): void {
-    if (invoiceForm && invoiceForm.dirty) {
-      if (confirm('You have unsaved changes. Close anyway?')) {
-        this.parentModal?.hide();
-        invoiceForm.reset();
-      }
-    } else {
-      this.parentModal?.hide();
-    }
-  }
-  hideChildModal(): void {
-    this.childModal?.hide();
-  }
 }

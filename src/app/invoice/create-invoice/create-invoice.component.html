@@ -17,6 +17,7 @@
                         <div class="card-header bg-primary">
                             <h3 class="card-title text-white">Invoice Form</h3>
                         </div>
+
                         <div class="card-body position-relative">
 
                             <div class="mb-4">
@@ -25,20 +26,79 @@
                                     {{invoice.dateInserted | date:'cccc, dd LLLL YYYY, HH:mm a' }}
                                 </span>
                             </div>
-                            <div class="mb-3">
-                                <label for="creditAccount" class="form-label">Credit Account</label>
-                                <input placeholder="Select Credit Account" readonly style="cursor: pointer;"
-                                    (click)="showCreditAccountsModal()" type="text"
-                                    [(ngModel)]="invoice.creditAccount.name" class="form-control" id="creditAccount"
-                                    name="creditAccount" required #creditAccountControl="ngModel" />
+
+                            <div class="mb-4">
+                                <label class="form-label d-block">Transaction Type</label>
+                                <div class="btn-group w-100" role="group">
+                                    <button type="button" class="btn btn-outline-primary" (click)="selectType('Credit')"
+                                        [class.active]="isCredit && transactionTouched">
+                                        <i class="bi bi-arrow-up-circle me-2"></i> Credit
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary" (click)="selectType('Debit')"
+                                        [class.active]="isDebit && transactionTouched">
+                                        <i class="bi bi-arrow-down-circle me-2"></i> Debit
+                                    </button>
+                                </div>
                             </div>
+
+                            @if(transactionTouched){
+
                             <div class="mb-3">
-                                <label for="debitAccount" class="form-label">Dedit Account</label>
-                                <input placeholder="Select Dedit Account" readonly style="cursor: pointer;"
-                                    (click)="showDebitAccountsModal()" type="text"
-                                    [(ngModel)]="invoice.debitAccount.name" class="form-control" id="debitAccount"
-                                    name="debitAccount" required #debitAccountControl="ngModel" />
+                                <label class="form-label">
+                                    {{ isCredit ? 'Credit Account' : 'Debit Account' }}
+                                </label>
+                                <div class="input-group">
+                                    @if(isCredit){
+                                    <input type="text" class="form-control" [(ngModel)]="invoice.creditAccount.name"
+                                        readonly placeholder="Select Credit Account" name="creditAccount"
+                                        id="creditAccount" #creditAccountControl="ngModel">
+                                    }
+                                    @else{
+                                    <input type="text" class="form-control" [(ngModel)]="invoice.debitAccount.name"
+                                        readonly placeholder="Select Debit Account" name="debitAccount"
+                                        id="debitAccount" #debitAccountControl="ngModel">
+                                    }
+                                    <button class="btn btn-primary" type="button" [disabled]="!transactionTouched"
+                                        (click)="isCredit ? showCreditAccountsModal() : showDebitAccountsModal()">
+                                        <i class="bi bi-search"></i> Browse
+                                    </button>
+                                </div>
+                                <div id="accountHelp" class="form-text">
+                                    Click <b>Browse</b> to select an account.
+                                </div>
                             </div>
+                            }
+
+                            <div class="mb-3">
+                                <label class="form-label">Amount</label>
+                                <div class="input-group has-validation">
+                                    @if(invoice.creditAccount.currency?.symbol){
+                                    <span class="input-group-text">
+                                        {{ invoice.creditAccount.currency.symbol}}
+                                    </span>
+                                    }
+                                    @else if(invoice.debitAccount.currency?.symbol){
+                                    <span class="input-group-text">
+                                        {{ invoice.debitAccount.currency.symbol}}
+                                    </span>
+                                    }
+                                    <input type="number" class="form-control" [(ngModel)]="this.invoice.totalAmount"
+                                        placeholder="Please enter the invoice amount" name="amount" required step="0.01"
+                                        #amountControl="ngModel">
+                                    <span class="input-group-text">Exchange Rate</span>
+                                    <input type="number" class="form-control" [(ngModel)]="this.invoice.exchangeRate"
+                                        placeholder="Please enter exchange rate" name="exchangeRate" required
+                                        step="0.01" #exchangeRateControl="ngModel">
+                                    <div class="invalid-feedback">
+                                        Please enter a valid amount
+                                    </div>
+                                </div>
+                                <div id="amountHelp" class="form-text">
+                                    Supply the amount of the transaction (cannot be zero)
+                                </div>
+                            </div>
+
+
                             <div class="mb-3">
                                 <label for="invoiceCode" class="form-label">Invoice Code</label>
                                 <input type="text" [(ngModel)]="invoice.code" class="form-control" id="invoiceCode"
@@ -48,6 +108,7 @@
                             <button type="submit" class="btn btn-primary" [disabled]="invoiceForm.invalid">
                                 Save
                             </button>
+                            Form Model: {{ invoiceForm.value | json }}
                         </div>
                     </div>
                 </form>
@@ -61,7 +122,8 @@
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 id="dialog-child-name" class="modal-title pull-left">Credit Accounts</h4>
+                <h4 id="dialog-child-name" class="modal-title pull-left">{{ isCredit ? 'Credit Account' : 'Debit
+                    Account' }}</h4>
                 <button type="button" class="close pull-right btn-close" aria-label="Close" (click)="hideChildModal()">
                     <span aria-hidden="true" class="visually-hidden">&times;</span>
                 </button>
