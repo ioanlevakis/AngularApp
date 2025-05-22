@@ -99,6 +99,7 @@ export class CreateInvoiceComponent {
       }
     } else {
       this.parentModal?.hide();
+      this.transactionTouched = false;
     }
   }
   hideChildModal(): void {
