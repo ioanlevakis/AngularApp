@@ -16,6 +16,7 @@ export interface IInvoice {
     remarks?: string;
     status: string;
     totalAmount: number;
+    type: string;
 }
 
 
@@ -46,7 +47,8 @@ export class Invoice implements IInvoice {
         public items: InvoiceItem[],
         public status: string,
         public totalAmount: number,
-        public remarks?: string
+        public type: string,
+        public remarks?: string,
     ) {
         // if (obj) {
         //     this.code = obj.code;

@@ -12,7 +12,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form #invoiceForm="ngForm" (ngSubmit)="createInvoice()">
+                <form #invoiceForm="ngForm" (ngSubmit)="createInvoice(invoiceForm)">
                     <div class="card mt-2">
                         <div class="card-header bg-primary">
                             <h3 class="card-title text-white">Invoice Form</h3>
@@ -56,12 +56,12 @@
                                 </label>
                                 <div class="input-group">
                                     @if(isCredit){
-                                    <input type="text" class="form-control" [(ngModel)]="invoice.creditAccount.name"
+                                    <input type="text" class="form-control" [ngModel]="invoice.creditAccount.name"
                                         readonly placeholder="Select Credit Account" name="creditAccount"
                                         id="creditAccount" #creditAccountControl="ngModel">
                                     }
                                     @else{
-                                    <input type="text" class="form-control" [(ngModel)]="invoice.debitAccount.name"
+                                    <input type="text" class="form-control" [ngModel]="invoice.debitAccount.name"
                                         readonly placeholder="Select Debit Account" name="debitAccount"
                                         id="debitAccount" #debitAccountControl="ngModel">
                                     }
@@ -79,16 +79,14 @@
                             <div class="mb-3">
                                 <label class="form-label">Amount</label>
                                 <div class="input-group has-validation">
-                                    @if(invoice.creditAccount.currency?.symbol){
+                                    @if(invoice?.creditAccount?.currency?.symbol ||
+                                    invoice?.debitAccount?.currency?.symbol){
+
                                     <span class="input-group-text">
-                                        {{ invoice.creditAccount.currency.symbol}}
+                                        {{invoice.creditAccount.currency?.symbol}}{{invoice.debitAccount.currency?.symbol}}
                                     </span>
                                     }
-                                    @else if(invoice.debitAccount.currency?.symbol){
-                                    <span class="input-group-text">
-                                        {{ invoice.debitAccount.currency.symbol}}
-                                    </span>
-                                    }
+
                                     <input type="number" class="form-control" [(ngModel)]="this.invoice.totalAmount"
                                         placeholder="Please enter the invoice amount" name="amount" required step="0.01"
                                         #amountControl="ngModel">
@@ -107,15 +105,50 @@
 
                             <div class="mb-3 col-md-5">
                                 <label for="invoiceIssueDate" class="form-label">Invoice Issue Date</label>
-                                <input type="text" bsDatepicker [(ngModel)]="invoice.issueDate"
+                                <input type="text" bsDatepicker [(ngModel)]="invoice.issueDate" required
                                     [bsConfig]="datepickerConfig" class="form-control" id="invoiceIssueDate"
                                     placeholder="Please select a Date" name="invoiceIssueDate" placement="right" />
                             </div>
 
-                            <button type="submit" class="btn btn-primary" [disabled]="invoiceForm.invalid">
+                            <button type="submit" class="btn btn-primary mb-3" [disabled]="invoiceForm.invalid">
                                 Save
                             </button>
-                            Form Model: {{ invoiceForm.value | json }}
+
+                            @if(invoiceItems.length > 0){
+                            <div class="mb-3">
+                                <form action="">
+                                    <h5 class="form-label">Saved Invoices</h5>
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th class="text-center">Invoice Code</th>
+                                                <th>Type</th>
+                                                <th class="text-center">Amount</th>
+                                                <th class="text-center">Exchange Rate</th>
+                                                <th class="text-center">Issue Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="table-group-divider">
+                                            @for(invoice of invoiceItems; track invoice.id; let i = $index){
+                                            <tr style="cursor: pointer;" class="bg-light shadow-sm rounded">
+                                                <td>{{ i + 1 }}</td>
+                                                <td class="text-center">{{ invoice.code }}</td>
+                                                <td>{{ invoice.type }}</td>
+                                                <td class="text-center">{{ invoice.totalAmount
+                                                    }}{{invoice.creditAccount.currency?.symbol}}{{invoice.debitAccount.currency?.symbol}}
+                                                </td>
+                                                <td class="text-center">{{ invoice.exchangeRate }}</td>
+                                                <td class="text-center">{{ invoice.issueDate | date:'cccc, dd LLLL YYYY,
+                                                    HH:mm a'}}</td>
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </form>
+                            </div>
+                            }
+
                         </div>
                     </div>
                 </form>
@@ -147,7 +180,6 @@
                         </tr>
                     </thead>
                     <tbody class="table-group-divider">
-                        <!-- <tr *ngFor="let item of items" (click)="onSelect(item)" style="cursor: pointer;"> -->
                         @for(account of accountItems; track account.id; let i = $index){
                         <tr (click)="onTableSelect(account)" style="cursor: pointer;"
                             class="bg-light shadow-sm rounded">

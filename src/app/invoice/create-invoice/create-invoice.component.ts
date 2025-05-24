@@ -6,7 +6,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
 import { Invoice } from '../../models/invoice.model';
 import { Transaction } from '../../models/transaction.model';
 import { Account } from '../../models/account.model';
-import { DatePipe, JsonPipe } from '@angular/common';
+import { DatePipe, } from '@angular/common';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 
@@ -14,11 +14,12 @@ import { provideAnimations } from '@angular/platform-browser/animations';
   selector: 'app-create-invoice',
   standalone: true,
   providers: [BsModalService, provideAnimations()],
-  imports: [FormsModule, ModalModule, DatePipe, JsonPipe, BsDatepickerModule],
+  imports: [FormsModule, ModalModule, DatePipe, BsDatepickerModule],
   templateUrl: './create-invoice.component.html',
   styleUrl: './create-invoice.component.css',
 })
 export class CreateInvoiceComponent {
+
 
   datepickerConfig = {
     dateInputFormat: 'DD/MM/YYYY',
@@ -48,6 +49,7 @@ export class CreateInvoiceComponent {
     this.transactionTouched = true;
   }
 
+  invoiceItems: Invoice[] = [];
   accountItems: Account[] = [];
 
   isCredit!: boolean;
@@ -68,17 +70,29 @@ export class CreateInvoiceComponent {
   onTableSelect(item: any) {
     if (item.type === "Debit") {
       this.invoice.debitAccount = item;
+      this.invoice.type = 'Debit';
       this.debitAccountControl.control.markAsDirty();
     } else {
       this.invoice.creditAccount = item;
+      this.invoice.type = 'Credit';
       this.creditAccountControl.control.markAsDirty();
     }
+    this.invoice.currency.symbol = item.currency.symbol;
     this.hideChildModal();
   }
 
 
-  createInvoice() {
-    throw new Error('Method not implemented.');
+  createInvoice(invoiceForm: NgForm) {
+    this.invoice.id += this.invoice.code;
+    const newInvoice: Invoice = { ...this.invoice }
+    this.invoiceItems = [...this.invoiceItems, newInvoice];
+    invoiceForm.reset();
+    this.transactionTouched = false;
+
+    // this.invoice = {} as Invoice;
+
+    // this.invoice.debitAccount = {} as Account;
+    // this.invoice.creditAccount = {} as Account;
   }
 
 
@@ -88,6 +102,7 @@ export class CreateInvoiceComponent {
   showParentModal(): void {
     this.invoice.dateInserted = new Date();
     this.parentModal?.show();
+    console.log(this.accountItems);
   }
   showChildModal(): void {
     this.childModal?.show();
@@ -119,6 +134,7 @@ export class CreateInvoiceComponent {
   hideChildModal(): void {
     this.childModal?.hide();
   }
+
 
   creditAccounts: Account[] = [
     {
@@ -195,7 +211,8 @@ export class CreateInvoiceComponent {
 
     debitAccount: {} as Account,
 
-    creditAccount: {} as Account
+    creditAccount: {} as Account,
+    type: ''
   };
 
   transaction: Transaction = {
