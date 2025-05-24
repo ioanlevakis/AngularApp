@@ -1,21 +1,35 @@
 import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
-import { BsModalService, ModalDirective } from 'ngx-bootstrap/modal';
+import { BsModalService, ModalDirective, } from 'ngx-bootstrap/modal';
+import { BsDatepickerModule, BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 import { FormsModule, NgForm, NgModel, } from '@angular/forms';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { Invoice } from '../../models/invoice.model';
 import { Transaction } from '../../models/transaction.model';
 import { Account } from '../../models/account.model';
 import { DatePipe, JsonPipe } from '@angular/common';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 
 @Component({
   selector: 'app-create-invoice',
-  providers: [BsModalService],
-  imports: [FormsModule, ModalModule, DatePipe, JsonPipe],
+  standalone: true,
+  providers: [BsModalService, provideAnimations()],
+  imports: [FormsModule, ModalModule, DatePipe, JsonPipe, BsDatepickerModule],
   templateUrl: './create-invoice.component.html',
-  styleUrl: './create-invoice.component.css'
+  styleUrl: './create-invoice.component.css',
 })
 export class CreateInvoiceComponent {
+
+  datepickerConfig = {
+    dateInputFormat: 'DD/MM/YYYY',
+    containerClass: 'theme-dark-blue',
+    isAnimated: false,
+    showWeekNumbers: true,
+    showTodayButton: true,
+    initCurrentTime: true,
+    showTimepicker: false,
+  };
+
   selectType(transactionType: string) {
     if (transactionType === "Credit") {
       this.isCredit = true;
@@ -158,7 +172,7 @@ export class CreateInvoiceComponent {
     dueDate: new Date("2025-05-31"),
     exchangeRate: 0.92,
     id: "900",
-    issueDate: new Date(),
+    issueDate: null,
     items: [
       {
         amount: 1200,

@@ -11,7 +11,7 @@ export interface IInvoice {
     dueDate: Date;
     exchangeRate: number;
     id: string;
-    issueDate: Date;
+    issueDate: Date | null;
     items: InvoiceItem[];
     remarks?: string;
     status: string;
@@ -42,7 +42,7 @@ export class Invoice implements IInvoice {
         public dueDate: Date,
         public exchangeRate: number,
         public id: string,
-        public issueDate: Date,
+        public issueDate: Date | null,
         public items: InvoiceItem[],
         public status: string,
         public totalAmount: number,
