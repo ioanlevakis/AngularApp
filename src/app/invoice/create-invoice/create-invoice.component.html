@@ -39,11 +39,11 @@
                                 <div class="btn-group w-100" role="group">
                                     <button type="button" class="btn btn-outline-primary" (click)="selectType('Credit')"
                                         [class.active]="isCredit && transactionTouched">
-                                        <i class="bi bi-arrow-up-circle me-2"></i> Credit
+                                        Credit
                                     </button>
                                     <button type="button" class="btn btn-outline-primary" (click)="selectType('Debit')"
                                         [class.active]="isDebit && transactionTouched">
-                                        <i class="bi bi-arrow-down-circle me-2"></i> Debit
+                                        Debit
                                     </button>
                                 </div>
                             </div>
@@ -110,41 +110,63 @@
                                     placeholder="Please select a Date" name="invoiceIssueDate" placement="right" />
                             </div>
 
-                            <button type="submit" class="btn btn-primary mb-3" [disabled]="invoiceForm.invalid">
-                                Save
-                            </button>
+                            <div class="d-flex gap-2 mb-2">
 
+                                <button type="submit" class="btn btn-primary" [disabled]="invoiceForm.invalid">
+                                    Save
+                                </button>
+                                <button (click)="resetForm()" type="button" class="btn btn-warning"
+                                    [hidden]="!invoiceForm.dirty">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                </button>
+                            </div>
+
+                            <hr>
                             @if(invoiceItems.length > 0){
                             <div class="mb-3">
                                 <form action="">
                                     <h5 class="form-label">Saved Invoices</h5>
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th class="text-center">Invoice Code</th>
-                                                <th>Type</th>
-                                                <th class="text-center">Amount</th>
-                                                <th class="text-center">Exchange Rate</th>
-                                                <th class="text-center">Issue Date</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="table-group-divider">
-                                            @for(invoice of invoiceItems; track invoice.id; let i = $index){
-                                            <tr style="cursor: pointer;" class="bg-light shadow-sm rounded">
-                                                <td>{{ i + 1 }}</td>
-                                                <td class="text-center">{{ invoice.code }}</td>
-                                                <td>{{ invoice.type }}</td>
-                                                <td class="text-center">{{ invoice.totalAmount
-                                                    }}{{invoice.creditAccount.currency?.symbol}}{{invoice.debitAccount.currency?.symbol}}
-                                                </td>
-                                                <td class="text-center">{{ invoice.exchangeRate }}</td>
-                                                <td class="text-center">{{ invoice.issueDate | date:'cccc, dd LLLL YYYY,
-                                                    HH:mm a'}}</td>
-                                            </tr>
-                                            }
-                                        </tbody>
-                                    </table>
+                                    <div class="rounded-3 overflow-hidden border">
+                                        <table class="table table-hover table-striped mb-0">
+                                            <thead class="table-primary">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th class="text-center">Invoice Code</th>
+                                                    <th>Type</th>
+                                                    <th>Account Name</th>
+                                                    <th class="text-center">Amount</th>
+                                                    <th class="text-center">Exchange Rate</th>
+                                                    <th class="text-center">Issue Date</th>
+                                                    <th class="text-center"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="table-group-divider">
+                                                @for(invoice of invoiceItems; track invoice.id; let i = $index; let last
+                                                = $last){
+                                                <tr (click)="onInvoiceSelect(invoice)" style="cursor: pointer;">
+                                                    <td [class.rounded-bottom-start]="last">{{ i + 1 }}</td>
+                                                    <td class="text-center">{{ invoice.code }}</td>
+                                                    <td>{{ invoice.type }}</td>
+                                                    <td>{{ invoice.creditAccount?.name }}{{ invoice.debitAccount?.name
+                                                        }}
+                                                    </td>
+                                                    <td class="text-center">{{ invoice.totalAmount
+                                                        }}{{invoice.creditAccount.currency?.symbol}}{{invoice.debitAccount.currency?.symbol}}
+                                                    </td>
+                                                    <td class="text-center">{{ invoice.exchangeRate }}</td>
+                                                    <td class="text-center">{{ invoice.issueDate | date:'cccc, dd LLLL
+                                                        YYYY,
+                                                        HH:mm a'}}</td>
+                                                    <td [class.rounded-bottom-end]="last"><i
+                                                            (click)="deleteInvoice($event,invoice)"
+                                                            class="bi bi-trash-fill text-danger"></i>
+                                                    </td>
+                                                </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <hr>
                                 </form>
                             </div>
                             }

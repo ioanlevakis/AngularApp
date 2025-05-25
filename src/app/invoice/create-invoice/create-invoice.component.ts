@@ -19,7 +19,17 @@ import { provideAnimations } from '@angular/platform-browser/animations';
   styleUrl: './create-invoice.component.css',
 })
 export class CreateInvoiceComponent {
+  resetForm() {
+    this.invoiceForm?.reset();
+  }
+  deleteInvoice(event: MouseEvent, invoiceToDelete: Invoice) {
+    event.stopPropagation();
+    this.invoiceItems = this.invoiceItems.filter(invoice => invoice !== invoiceToDelete);
+    this.invoice = {} as Invoice;
+    this.invoiceForm?.reset();
+  }
 
+  @ViewChild('invoiceForm') invoiceForm: NgForm | undefined;
 
   datepickerConfig = {
     dateInputFormat: 'DD/MM/YYYY',
@@ -89,6 +99,8 @@ export class CreateInvoiceComponent {
     invoiceForm.reset();
     this.transactionTouched = false;
 
+    this.invoice.debitAccount = {} as Account;
+    this.invoice.creditAccount = {} as Account;
     // this.invoice = {} as Invoice;
 
     // this.invoice.debitAccount = {} as Account;
@@ -133,6 +145,11 @@ export class CreateInvoiceComponent {
   }
   hideChildModal(): void {
     this.childModal?.hide();
+  }
+
+
+  onInvoiceSelect(tableItem: Invoice) {
+    this.invoice = { ...tableItem };
   }
 
 
