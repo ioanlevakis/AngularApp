@@ -21,6 +21,11 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 export class CreateInvoiceComponent {
   resetForm() {
     this.invoiceForm?.reset();
+    // this.invoice = {} as Invoice;
+    this.transactionTouched = false;
+
+    this.invoice.debitAccount = {} as Account;
+    this.invoice.creditAccount = {} as Account;
   }
   deleteInvoice(event: MouseEvent, invoiceToDelete: Invoice) {
     event.stopPropagation();
